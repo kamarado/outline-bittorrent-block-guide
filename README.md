@@ -195,10 +195,10 @@ sudo ufw insert 1 allow out номер_порта
     :LOGREJECT-MARKED - [0:0]
 
     -A LOGREJECT-INPUT -j LOG --log-prefix "LOGREJECT-INPUT "
-    -A LOGREJECT-INPUT -j REJECT
+    -A LOGREJECT-INPUT -j REJECT --reject-with icmp-proto-unreachable
 
     -A LOGREJECT-OUTPUT -j LOG --log-prefix "LOGREJECT-OUTPUT "
-    -A LOGREJECT-OUTPUT -j REJECT
+    -A LOGREJECT-OUTPUT -j REJECT --reject-with icmp-proto-unreachable
 
     -A LOGREJECT-MARKED -j LOG --log-prefix "LOGREJECT-MARKED "
     -A LOGREJECT-MARKED -j REJECT --reject-with icmp-proto-unreachable
