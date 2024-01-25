@@ -248,33 +248,15 @@ sudo ufw insert 1 allow out номер_порта
     ```sh
     ## BitTorrent blocking Rules
 
-    *mangle
-    # Mark BitTorrent traffic while passing already marked packets through
-    -A PREROUTING -j CONNMARK --restore-mark
-    -A PREROUTING -m mark ! --mark 0 -j ACCEPT
-    -A PREROUTING -m ipp2p --bit -j MARK --set-mark 6881
-    -A PREROUTING -m mark --mark 6881 -j CONNMARK --save-mark
-
-    -A OUTPUT -j CONNMARK --restore-mark
-    -A OUTPUT -m mark ! --mark 0 -j ACCEPT
-    -A OUTPUT -m ipp2p --bit -j MARK --set-mark 6882
-    -A OUTPUT -m mark --mark 6882 -j CONNMARK --save-mark
-
-    COMMIT
-
     *filter
     :LOGREJECT6-INPUT - [0:0]
     :LOGREJECT6-OUTPUT - [0:0]
-    :LOGREJECT6-MARKED - [0:0]
 
     -A LOGREJECT6-INPUT -j LOG --log-prefix "LOGREJECT6-INPUT "
-    -A LOGREJECT6-INPUT -j REJECT --reject-with icmp-proto-unreachable
+    -A LOGREJECT6-INPUT -j REJECT
 
     -A LOGREJECT6-OUTPUT -j LOG --log-prefix "LOGREJECT6-OUTPUT "
-    -A LOGREJECT6-OUTPUT -j REJECT --reject-with icmp-proto-unreachable
-
-    -A LOGREJECT6-MARKED -j LOG --log-prefix "LOGREJECT6-MARKED "
-    -A LOGREJECT6-MARKED -j REJECT --reject-with icmp-proto-unreachable
+    -A LOGREJECT6-OUTPUT -j REJECT
 
     # Log+reject input packets with BitTorrent-like dataload
     -A ufw6-before-input -m string --algo bm --string "BitTorrent" -j LOGREJECT6-INPUT
@@ -306,15 +288,12 @@ sudo ufw insert 1 allow out номер_порта
     -A ufw6-before-output -m string --string "announce_peer" --algo bm -j LOGREJECT6-OUTPUT
     -A ufw6-before-output -m string --string "find_node" --algo bm -j LOGREJECT6-OUTPUT
 
-    # Log+reject input packets marked as part of a BitTorrent connection
-    -A ufw6-before-input -m mark --mark 6881 -j LOGREJECT6-MARKED
-
-    # Log+reject output packets marked as part of a BitTorrent connection
-    -A ufw6-before-output -m mark --mark 6882 -j LOGREJECT6-MARKED
-
     COMMIT
     
     ```
+    
+    К можалению, модуль `ipp2p` реализован только для IPv4, поэтому мы не можем включить его в правила для IPv6
+
 
  * Перезапустить файрвол
 
